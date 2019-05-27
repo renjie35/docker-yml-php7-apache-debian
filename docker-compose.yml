@@ -1,0 +1,55 @@
+version: "2"
+services:
+  nginx:
+    container_name: apache
+    image: registry.cn-hangzhou.aliyuncs.com/jren/php:7-apache-debian
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      # 代码目录
+      #- ./www:/var/www/html
+      - ~/Bak:/var/www/html
+      # apache配置
+      - ./config/apache2:/etc/apache2
+      # php.ini配置目录
+      - ./config/php:/usr/local/etc
+      # composer
+      - ./config/composer:/usr/local/bin/composer
+      # supervisor配置
+      - ./config/supervisor/conf.d:/etc/supervisor/conf.d
+      # 日志目录
+      - ./logs:/logs
+      # crontab配置
+      - ./config/crontab:/var/spool/cron/crontabs
+      # 默认启动项
+      - ./config/start.sh:/start.sh
+    environment:
+      - APACHE_LOG_DIR=/logs
+      - PHPRC=/usr/local/etc/php
+    links:
+      - redis
+      - mysql
+
+  mysql:
+    image: mysql:5.5.53
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql/data:/var/lib/mysql #持久化存储
+      - ./mysql/conf:/etc/mysql/conf.d #配置文件
+      - ./mysql/my.cnf:/etc/mysql/my.cnf
+      - ./mysql/conf/localtime:/etc/localtime
+    container_name: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=dell_456
+
+  redis:
+    image: hub.c.163.com/library/redis:3.2.6-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis/data:/data #持久化存储
+      - ./redis/conf:/etc/redis #配置文件#
+    container_name: redis
+    command: redis-server /etc/redis/redis.conf
