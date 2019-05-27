@@ -1,4 +1,4 @@
-# DEBIAN-PHP5.6-APACHE
+# DEBIAN-PHP7-APACHE
 
 ## 基于Docker的本地PHP开发环境
 
