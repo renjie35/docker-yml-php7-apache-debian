@@ -1,4 +1,4 @@
-version: "2"
+version: "3"
 services:
   nginx:
     container_name: apache
@@ -30,6 +30,10 @@ services:
     links:
       - redis
       - mysql
+    networks:
+      webnet:
+        aliases:
+          - apache
 
   mysql:
     image: mysql:5.5.53
@@ -43,6 +47,10 @@ services:
     container_name: mysql
     environment:
       - MYSQL_ROOT_PASSWORD=dell_456
+    networks:
+      webnet:
+        aliases:
+          - mysql
 
   redis:
     image: hub.c.163.com/library/redis:3.2.6-alpine
@@ -53,3 +61,29 @@ services:
       - ./redis/conf:/etc/redis #配置文件#
     container_name: redis
     command: redis-server /etc/redis/redis.conf
+    networks:
+      webnet:
+        aliases:
+          - redis
+
+  node:
+    container_name: node
+    image: registry.cn-hangzhou.aliyuncs.com/jren/node:12.6-node-alpine
+    ports:
+      - "7001:7001"
+    volumes:
+      # 代码目录
+      #- ./www:/var/www/html
+      - ~/Bak:/var/www/html
+      # 日志目录
+      - ./logs/node:/logs
+      # 开始
+      - ./node/start.sh:/start.sh
+    command: sh start.sh
+    networks:
+      webnet:
+        aliases:
+          - node
+
+networks:
+  webnet:
